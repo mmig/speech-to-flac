@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="recorder">
+	<head>
+		<meta charset="utf-8">
+		<title>Speech Recording in Browser</title>
+		<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
+		<script src="app.js"></script>
+		<style type="text/css"> .red-btn { color: #D00000; } .green-btn { color: #00D000; } .blue-btn { color: #0000D0; }</style>
+	</head>
+	<body ng-controller="RecorderController">
+		<div class="container well">
+			<h1 class="text-center">Record Stuff from the Browser</h1>
+			<div class="row">
+				<div class="offset3 span3 text-center">
+					<label>Input Sample Rate: <select ng-model="samplerate" ng-options="s + ' Hz' for s in samplerates" ng-disabled="wav_format"></select></label>
+				</div>
+				<div class="span3 text-center">
+					<label>Compression: <select ng-model="compression" ng-options="b for b in compressions" ng-disabled="wav_format"></select></label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="offset3 span3 text-center"><button class="btn" ng-click="startRecording()" ng-disabled="recording"><i class="icon-circle" ng-class="recordButtonStyle"></i>&nbsp;Start recording</button></div>
+				<div class="span3 text-center"><button class="btn" ng-click="stopRecording()" ng-disabled="!recording"><i class="icon-download-alt"></i>&nbsp;Stop recording</button></div>
+			</div>
+			<div class="row">
+				<div class="span12 text-center" ng-show="recording">
+					<span class="label label-important">Recording...</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="offset3 span6">
+                    <!-- <button class="btn blue-btn" ng-click="recordaswave('wav_btn');" ng-disabled="recording" id="wav_btn"> -->
+<!--                        <i class="icon-circle" ng-class="recordButtonStyle" id="wav_btn"></i>&nbsp; (Format: <i class="icon-circle green-btn"></i>&nbsp; = WAV <i class="icon-circle blue-btn"></i>&nbsp; = FLAC)
+                        <i class="icon-circle blue-btn" id="wav_btn"></i>&nbsp; (Format: <i class="icon-circle green-btn"></i>&nbsp; = WAV <i class="icon-circle blue-btn"></i>&nbsp; = FLAC) -->
+<!--                         FLAC
+                    </button><br>
+ -->					
+					<h4>Download as</h4>
+					<input type="radio" name="format" ng-click="recordaswave(false);" value="flac" checked>FLAC-file
+					<input type="radio" name="format" ng-click="recordaswave(true);" value="wav">WAV-file<br>
+					
+					<span ng-show="!wav_format">
+						<input type="checkbox" ng-model="isASREnabled" ng-click="setResultMode(isASREnabled);" />Send Audio to Speech Recognition (instead of File)<br/>
+					</span>
+                </div>
+
+			</div>
+			<div class="row" >
+				<div class="text-center offset3 span6 form-group"  ng-show="!wav_format && result_mode == 'asr'">
+				
+					<h4>Recognition Result Data:</h4>
+					
+					<textarea name="asr-result" class="form-control span6" rows="10" ng-model="asr_result.text" readonly></textarea>
+                </div>
+
+			</div>
+		</div>
+<p>Press on the "Start recording button" to start the recording per microphone - permission by the user is required.<br>
+To end the recording press on "Stop recording".<br>
+The compression and input-sample-rate options are only applicable for FLAC file format download.<br>
+The input sample rate in Chrome is - as of now - 44100 Hz. If you change that, the recorded sample may be played slower or faster than expected.</p>
+<p>
+Important:<br>
+<br>
+If running the HTML page directly form the file system, then Chrome needs to be started with flag
+<code>--allow-file-access-from-files</code>.
+Otherwise the web worker cannot be loaded.<br>
+If you want to use the Google Speech Recognition web service, you may need to start Chrome with the flag
+<code>--disable-web-security</code>; <b>WARNING:</b> you should not browse the Internet when this flag is active.
+</p>
+	</body>
+</html>
