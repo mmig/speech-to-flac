@@ -7,7 +7,7 @@
 		<link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
 		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
 		<script src="app.js"></script>
-		<style type="text/css"> .red-btn { color: #D00000; } .green-btn { color: #00D000; } .blue-btn { color: #0000D0; }</style>
+		<style type="text/css"> .red-btn { color: #D00000; } .green-btn { color: #00D000; } .blue-btn { color: #0000D0; } .inline { display: inline; } </style>
 	</head>
 	<body ng-controller="RecorderController">
 		<div class="container well">
@@ -41,9 +41,17 @@
 					<input type="radio" name="format" ng-click="recordaswave(false);" value="flac" checked>FLAC-file
 					<input type="radio" name="format" ng-click="recordaswave(true);" value="wav">WAV-file<br>
 					
-					<span ng-show="!wav_format">
-						<input type="checkbox" ng-model="isASREnabled" ng-click="setResultMode(isASREnabled);" />Send Audio to Speech Recognition (instead of File)<br/>
-					</span>
+					<br>
+					
+					<div ng-show="!wav_format">
+						<input type="checkbox" ng-disabled="isNotASRCapable" ng-model="isASREnabled" ng-click="setResultMode(isASREnabled);" />
+							<span ng-show="!isNotASRCapable">Send Audio to Speech Recognition (instead of File)</span>
+							<div ng-show="isNotASRCapable" class="inline">
+								<s>Send Audio to Speech Recognition (instead of File)</s><br>
+								<div class="alert alert-warning alert-dismissible">Disabled: Need API key for accessing Google Speech API (see comment in app.js)</div>
+							</div>
+						<br/>
+					</div>
                 </div>
 
 			</div>

@@ -34,6 +34,11 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
     $scope._google_api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
     $scope._asr_alternatives = 20;
     
+    //do not changes these: this "detects" if a key for the Google Speech API is set or not
+    // (and updates page accordingly, i.e. enable/disable check-box for sending audio to ASR service):
+    var __def_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+    $scope.isNotASRCapable = $scope._google_api_key === __def_key;
+    
 	$scope.recordaswave = function(isUseWavFormat) {
         $scope.wav_format = isUseWavFormat;
     };
