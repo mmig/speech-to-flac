@@ -17,7 +17,7 @@ Encoding etc. works completely client-side, i.e. no data is sent to any server.
 As a special option, the FLAC data can be sent to the Google Speech Recognition
 web service.
 NOTE that you need to set your (secret) API key for the recognition service first
-(see comment in [app.js](https://raw.githubusercontent.com/mmig/speech-to-flac/master/LICENSE/app.js)
+(see comment in [app.js](blob/master/app.js)
  for more details).
 
 Demo
