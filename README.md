@@ -41,4 +41,4 @@ If you access the demo page via `https`, most browser will make the permission f
 [1]: https://github.com/mmig/libflac.js
 [2]: https://github.com/mmig/speech-to-file
 [3]: https://github.com/akrennmair/speech-to-server
-[4]: http://mmig.github.io/speech-to-flac/
+[4]: https://mmig.github.io/speech-to-flac/
