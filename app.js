@@ -146,9 +146,9 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		else
 			console.error('Could not create audio node for JavaScript based Audio Processing.');
 
-		//debug:
-		var sampleRate = $scope.input.context.sampleRate;
-		console.log('sampleRate: ' + sampleRate);
+		
+		var sampleRate = $scope.audio_context.sampleRate;
+		console.log('audioContext.sampleRate: ' + sampleRate);//DEBUG
 		if($scope.autoSelectSamplerate){
 			$scope.samplerate = sampleRate;
 		}
