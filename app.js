@@ -177,7 +177,10 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		}
 		$scope.recordButtonStyle = "red-btn";
 		console.log('stop recording');
-		$scope.stream.stop();
+		var tracks = $scope.stream.getAudioTracks()
+		for(var i = tracks.length - 1; i >= 0; --i){
+			tracks[i].stop();
+		}
 		$scope.recording = false;
 		$scope.encoder.postMessage({ cmd: 'finish' });
 
