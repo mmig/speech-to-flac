@@ -9,6 +9,7 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 	$scope.input = null;
 	$scope.node = null;
 	$scope.samplerate = 44100;
+	$scope.autoSelectSamplerate = true;
 	$scope.samplerates = [ 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000 ];
 	$scope.compression = 5;
 	$scope.compressions = [ 0, 1,2,3,4,5,6,7,8 ];
@@ -61,14 +62,6 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
             $scope.encoder.postMessage({ cmd: 'save_as_wavfile'});
         }
         
-		console.log('initializing encoder with:');//DEBUG
-        console.log(' bits-per-sample = ' + $scope.flacdata.bps);//DEBUG
-        console.log(' channels        = ' + $scope.flacdata.channels);//DEBUG
-        console.log(' sample rate     = ' + $scope.samplerate);//DEBUG
-        console.log(' compression     = ' + $scope.compression);//DEBUG
-        
-		$scope.encoder.postMessage({ cmd: 'init', config: { samplerate: $scope.samplerate, bps: $scope.flacdata.bps, channels: $scope.flacdata.channels, compression:$scope.compression  } });
-
 		$scope.encoder.onmessage = function(e) {
 			
 			if (e.data.cmd == 'end') {
@@ -130,7 +123,7 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 
 		console.log('success grabbing microphone');
 		$scope.stream = localMediaStream;
-
+		
 		var audio_context;
 		if(typeof webkitAudioContext !== 'undefined'){
 			audio_context = new webkitAudioContext;
@@ -154,7 +147,18 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 			console.error('Could not create audio node for JavaScript based Audio Processing.');
 
 		//debug:
-		console.log('sampleRate: ' + $scope.input.context.sampleRate);
+		var sampleRate = $scope.input.context.sampleRate;
+		console.log('sampleRate: ' + sampleRate);
+		if($scope.autoSelectSamplerate){
+			$scope.samplerate = sampleRate;
+		}
+		
+		console.log('initializing encoder with:');//DEBUG
+        console.log(' bits-per-sample = ' + $scope.flacdata.bps);//DEBUG
+        console.log(' channels        = ' + $scope.flacdata.channels);//DEBUG
+        console.log(' sample rate     = ' + $scope.samplerate);//DEBUG
+        console.log(' compression     = ' + $scope.compression);//DEBUG
+		$scope.encoder.postMessage({ cmd: 'init', config: { samplerate: $scope.samplerate, bps: $scope.flacdata.bps, channels: $scope.flacdata.channels, compression:$scope.compression  } });
 
 		$scope.node.onaudioprocess = function(e) {
 			if (!$scope.recording)

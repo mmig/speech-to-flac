@@ -11,13 +11,16 @@
 	</head>
 	<body ng-controller="RecorderController">
 		<div class="container well">
-			<h1 class="text-center">Record Stuff from the Browser</h1>
+			<h1 class="text-center">Record FLAC from the Browser</h1>
 			<div class="row">
-				<div class="offset3 span3 text-center">
-					<label>Input Sample Rate: <select ng-model="samplerate" ng-options="s + ' Hz' for s in samplerates" ng-disabled="wav_format"></select></label>
-				</div>
-				<div class="span3 text-center">
+				<div class="offset3 span3 text-left">
 					<label>Compression: <select ng-model="compression" ng-options="b for b in compressions" ng-disabled="wav_format"></select></label>
+				</div>
+				<div class=" span3 text-left">
+					<label>Auto Select Input Sample Rate: <input type="checkbox" ng-model="autoSelectSamplerate" ng-click="setResultMode(isASREnabled);" /></label>
+				</div>
+				<div class="span3 text-left">
+					<label>Input Sample Rate: <select ng-model="samplerate" ng-options="s + ' Hz' for s in samplerates" ng-disabled="wav_format || autoSelectSamplerate"></select></label>
 				</div>
 			</div>
 			<div class="row">
