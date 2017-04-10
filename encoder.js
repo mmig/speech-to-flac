@@ -1,4 +1,4 @@
-importScripts('libflac.js');
+importScripts('libflac3-1.3.2.min.js');
 
 var flac_encoder,
 	BUFSIZE = 4096,
@@ -91,7 +91,7 @@ self.onmessage = function(e) {
 			CHANNELS = e.data.config.channels;
 			////
 
-			flac_encoder = Flac.init_libflac(SAMPLERATE, CHANNELS, BPS, COMPRESSION, 0);
+			flac_encoder = Flac.init_libflac_encoder(SAMPLERATE, CHANNELS, BPS, COMPRESSION, 0);
 			////
 			if (flac_encoder != 0){
 				var status_encoder = Flac.init_encoder_stream(flac_encoder, write_callback_fn);
@@ -115,21 +115,10 @@ self.onmessage = function(e) {
 			write_wav(e.data.buf);
 
 		} else {
+			
 			// FLAC
-			var buf_length = e.data.buf.length;
-			var buffer_i32 = new Uint32Array(buf_length);
-			var view = new DataView(buffer_i32.buffer);
-			var volume = 1;
-			var index = 0;
-			for (var i = 0; i < buf_length; i++){
-				view.setInt32(index, (e.data.buf[i] * (0x7FFF * volume)), true);
-				index += 4;
-			}
-
-			var flac_return = Flac.encode_buffer_pcm_as_flac(flac_encoder, buffer_i32, CHANNELS, buf_length);
-			if (flac_return != true){
-				console.log("Error: encode_buffer_pcm_as_flac returned false. " + flac_return);
-			}
+			encodeFlac(e.data.buf);
+			
 		}
 		break;
 		
@@ -146,6 +135,7 @@ self.onmessage = function(e) {
 			console.log("flac finish: " + flac_ok);//DEBUG
 			data = exportFlacFile(flacBuffers, flacLength, mergeBuffersUint8);
 			
+			Flac.FLAC__stream_encoder_delete(flac_encoder);
 		}
 
 		clear();
@@ -156,13 +146,57 @@ self.onmessage = function(e) {
 	}
 };
 
+//HELPER: handle incoming PCM audio data for Flac encoding:
+function encodeFlac(audioData){
+	
+	if(!Flac.isReady()){
+		
+		//if Flac is not ready yet: buffer the audio
+		wavBuffers.push(audioData);
+		console.info('buffered audio data for Flac encdoing')
+		
+	} else {
+	
+		if(wavBuffers.length > 0){
+			//if there is buffered audio: encode buffered first (and clear buffer)
+			
+			var len = wavBuffers.length;
+			var buffered = wavBuffers.splice(0, len);
+			for(var i=0; i < len; ++i){
+				doEncodeFlac(buffered[i]);
+			}
+		}
+	
+		doEncodeFlac(audioData);
+	}
+}
+
+//HELPER: actually encode PCM data to Flac
+function doEncodeFlac(audioData){
+	
+	var buf_length = audioData.length;
+	var buffer_i32 = new Uint32Array(buf_length);
+	var view = new DataView(buffer_i32.buffer);
+	var volume = 1;
+	var index = 0;
+	for (var i = 0; i < buf_length; i++){
+		view.setInt32(index, (audioData[i] * (0x7FFF * volume)), true);
+		index += 4;
+	}
+
+	var flac_return = Flac.FLAC__stream_encoder_process_interleaved(flac_encoder, buffer_i32, buffer_i32.length / CHANNELS);
+	if (flac_return != true){
+		console.log("Error: encode_buffer_pcm_as_flac returned false. " + flac_return);
+	}
+}
+
 function exportFlacFile(recBuffers, recLength){
 
 	//convert buffers into one single buffer
 	var samples = mergeBuffersUint8(recBuffers, recLength);
 
 //	var audioBlob = new Blob([samples], { type: type });
-	var the_blob = new Blob([samples]);
+	var the_blob = new Blob([samples], { type: 'audio/flac' });
 	return the_blob;
 	
 }
@@ -193,7 +227,7 @@ function exportMonoWAV(buffers, length){
     //write audio data
 	floatTo16BitPCM(view, 44, buffers);
 
-	return new Blob([view]);
+	return new Blob([view], { type: 'audio/wav' });
 }
 
 function writeUTFBytes(view, offset, string){ 
