@@ -1,3 +1,4 @@
+var FLAC_SCRIPT_LOCATION = 'speech-to-flac/';//<- need to set the path where the .mem file is located
 importScripts('libflac3-1.3.2.min.js');
 
 var flac_encoder,
