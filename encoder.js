@@ -90,19 +90,16 @@ self.onmessage = function(e) {
 			SAMPLERATE = e.data.config.samplerate;
 			CHANNELS = e.data.config.channels;
 			////
-
-			flac_encoder = Flac.init_libflac_encoder(SAMPLERATE, CHANNELS, BPS, COMPRESSION, 0);
-			////
-			if (flac_encoder != 0){
-				var status_encoder = Flac.init_encoder_stream(flac_encoder, write_callback_fn);
-				flac_ok &= (status_encoder == 0);
-				
-				console.log("flac init     : " + flac_ok);//DEBUG
-				console.log("status encoder: " + status_encoder);//DEBUG
-				
-				INIT = true;
+			
+			if(!Flac.isReady()){
+				Flac.onready = function(){
+					
+					setTimeout(function(){
+						initFlac();
+					},0);
+				}
 			} else {
-				console.error("Error initializing the encoder.");
+				initFlac();
 			}
 		}
 		break;
@@ -130,12 +127,19 @@ self.onmessage = function(e) {
 			data = exportMonoWAV(wavBuffers, wavLength);
 			
 		} else {
-
-			flac_ok &= Flac.FLAC__stream_encoder_finish(flac_encoder);
-			console.log("flac finish: " + flac_ok);//DEBUG
-			data = exportFlacFile(flacBuffers, flacLength, mergeBuffersUint8);
 			
-			Flac.FLAC__stream_encoder_delete(flac_encoder);
+			if(!Flac.isReady()){
+				
+				console.error('Flac was not initialized: could not encode data!');
+				
+			} else {
+				
+				flac_ok &= Flac.FLAC__stream_encoder_finish(flac_encoder);
+				console.log("flac finish: " + flac_ok);//DEBUG
+				data = exportFlacFile(flacBuffers, flacLength, mergeBuffersUint8);
+				
+				Flac.FLAC__stream_encoder_delete(flac_encoder);
+			}
 		}
 
 		clear();
@@ -145,6 +149,24 @@ self.onmessage = function(e) {
 		break;
 	}
 };
+
+//HELPER: handle initialization of flac encoder
+function initFlac(){
+	
+	flac_encoder = Flac.init_libflac_encoder(SAMPLERATE, CHANNELS, BPS, COMPRESSION, 0);
+	////
+	if (flac_encoder != 0){
+		var status_encoder = Flac.init_encoder_stream(flac_encoder, write_callback_fn);
+		flac_ok &= (status_encoder == 0);
+		
+		console.log("flac init     : " + flac_ok);//DEBUG
+		console.log("status encoder: " + status_encoder);//DEBUG
+		
+		INIT = true;
+	} else {
+		console.error("Error initializing the encoder.");
+	}
+}
 
 //HELPER: handle incoming PCM audio data for Flac encoding:
 function encodeFlac(audioData){
@@ -274,4 +296,3 @@ function clear(){
 	wavBuffers.splice(0, wavBuffers.length);
 	wavLength = 0;
 }
-
