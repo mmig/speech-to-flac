@@ -284,7 +284,7 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		    }
 		    
 		    var params = $scope.auth === 'apiKey'?  '?key='+key : '';
-		    oAjaxReq.open("post", " https://speech.googleapis.com/v1/speech:recognize"+params, true);
+		    oAjaxReq.open("post", "https://speech.googleapis.com/v1/speech:recognize"+params, true);
 		    
 		    if($scope.auth === 'serviceKey'){
 			    oAjaxReq.setRequestHeader("Authorization", "Bearer "+key);
