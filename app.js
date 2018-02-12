@@ -24,16 +24,30 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
     $scope.outfilename_flac = "output.flac";
     $scope.outfilename_wav = "output.wav";
     
+    //ASR-related settings (using Google Cloud Speech service)
+    
+    $scope.languages = ['af-ZA', 'am-ET', 'hy-AM', 'az-AZ', 'id-ID', 'ms-MY', 'bn-BD', 'bn-IN', 'ca-ES', 'cs-CZ', 'da-DK', 'de-DE', 'en-AU', 'en-CA', 'en-GH', 'en-GB', 'en-IN', 'en-IE', 'en-KE', 'en-NZ', 'en-NG', 'en-PH', 'en-ZA', 'en-TZ', 'en-US', 'es-AR', 'es-BO', 'es-CL', 'es-CO', 'es-CR', 'es-EC', 'es-SV', 'es-ES', 'es-US', 'es-GT', 'es-HN', 'es-MX', 'es-NI', 'es-PA', 'es-PY', 'es-PE', 'es-PR', 'es-DO', 'es-UY', 'es-VE', 'eu-ES', 'fil-PH', 'fr-CA', 'fr-FR', 'gl-ES', 'ka-GE', 'gu-IN', 'hr-HR', 'zu-ZA', 'is-IS', 'it-IT', 'jv-ID', 'kn-IN', 'km-KH', 'lo-LA', 'lv-LV', 'lt-LT', 'hu-HU', 'ml-IN', 'mr-IN', 'nl-NL', 'ne-NP', 'nb-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ro-RO', 'si-LK', 'sk-SK', 'sl-SI', 'su-ID', 'sw-TZ', 'sw-KE', 'fi-FI', 'sv-SE', 'ta-IN', 'ta-SG', 'ta-LK', 'ta-MY', 'te-IN', 'vi-VN', 'tr-TR', 'ur-PK', 'ur-IN', 'el-GR', 'bg-BG', 'ru-RU', 'sr-RS', 'uk-UA', 'he-IL', 'ar-IL', 'ar-JO', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-SA', 'ar-IQ', 'ar-KW', 'ar-MA', 'ar-TN', 'ar-OM', 'ar-PS', 'ar-QA', 'ar-LB', 'ar-EG', 'fa-IR', 'hi-IN', 'th-TH', 'ko-KR', 'cmn-Hant-TW', 'yue-Hant-HK', 'ja-JP', 'cmn-Hans-HK', 'cmn-Hans-CN'];
+    
+    var __language = /\blanguage=([^&]*)/.exec(document.location.search);//<- for testing: set pre-selected language code via search-param in URL: ...?language=<language code>
+    $scope.language = __language? __language[1] : 'en-US';
+    
     $scope.result_mode = "file";//values: "asr" | "file" | TODO: "asr&file"
     $scope.asr_result = {
     		text: ""
     };
-    
-    //your API key from Google Console for Web Speech Recognition service (secret!!!)
-    //  for more details on how to obtain an API key see e.g. 
-    //  http://codeabitwiser.com/2014/03/google-speech-recognition-api-information-guidelines/ 
-    $scope._google_api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
     $scope._asr_alternatives = 20;
+    
+    
+    //your API key from Google Console for Google Cloud Speech service (secret!!!)
+    //  for more details on how to obtain an API key see e.g. 
+    // WARNING: for security reasons, it's recommended to use service API auth instead of an app key
+    //          ... in any case: only use this for test, NEVER publish your secret key!
+    
+    var __key = /\bkey=([^&]*)/.exec(document.location.search);//<- for testing: set app key via search-param in URL: ...?key=<API key>
+    $scope._google_api_key = __key? __key[1] : 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+    
+    var __authMethod = /\bauth=([^&]*)/.exec(document.location.search);//<- for testing: set auth-method via search-param in URL: ...?auth=<authentification method>
+    $scope.auth = __authMethod? __authMethod[1] : null;//values: "apiKey" | "serviceKey" (DEFAULT: "apiKey")
     
     //do not changes these: this "detects" if a key for the Google Speech API is set or not
     // (and updates page accordingly, i.e. enable/disable check-box for sending audio to ASR service):
@@ -207,61 +221,86 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 	
 	$scope.num = 0;
 	
-	$scope.sendASRRequest = function(blob){
-		
-		function ajaxSuccess () {
-			var result = this.responseText;
-            console.log("AJAXSubmit - Success!");//DEBUG
-            console.log(result);
-//            //note: you can get the serialized data through the "submittedData" custom property:
-//            console.log(JSON.stringify(this.submittedData));//DEBUG
-            
-            //QUICK-FIX: currently, several results are sent within one response, separated by a NEWLINE
-            //			-> convert into an array
-            if(/\r?\n/igm.test(result)){
-            	
-            	//convert NEWLINEs to commas:
-            	result = '[' + result.replace(/\r?\n/igm, ',');
+	$scope.sendASRRequest = function(blob) {
 
-            	//remove "pending" comma, if present:
-            	result = result.replace(/,\s*$/igm, '');
-            	
-            	//close array:
-            	result += ']';
-			}
-            
-            try{
-            	result = JSON.parse(result);
-            	//format the result
-            	result = JSON.stringify(result, null, 2);
-            } catch (exc){
-            	console.warn('Could not parse result into JSON object: "'+result+'"');
-            }
-            
-            $scope.$apply(function(){
-            		$scope.asr_result.text = result;
-            });
-        }
+		  function ajaxSuccess() {
+		    
+		    var result = this.responseText;
+		    console.log("AJAXSubmit - Success!"); //DEBUG
+		    console.log(result);
 
-        var data = blob;
-        var sample_rate = 	$scope.samplerate;
-        var key = 			$scope._google_api_key;
-        var alternatives = 	$scope._asr_alternatives;
-        
-        var oAjaxReq = new XMLHttpRequest();
-        
-        oAjaxReq.onload = ajaxSuccess;
-        oAjaxReq.open("post", "https://www.google.com/speech-api/v2/recognize?client=chromium&lang=de-DE&maxAlternatives="+alternatives+"&output=json&key="+key, true);
-        oAjaxReq.setRequestHeader("Content-Type", "audio/x-flac; rate=" + sample_rate + ";");
-//        oAjaxReq.setRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36;");
-		oAjaxReq.withCredentials = true;
-        oAjaxReq.send(data);
-        
-        $scope.$apply(function(){
-    		$scope.asr_result.text = "Waiting for Recognition Result...";
-        });
-        
-	};
+		    try {
+		      result = JSON.parse(result);
+		      //format the result
+		      result = JSON.stringify(result, null, 2);
+		    } catch (exc) {
+		      console.warn('Could not parse result into JSON object: "' + result + '"');
+		    }
+
+		    $scope.$apply(function() {
+		      $scope.asr_result.text = result;
+		    });
+		  }
+
+		  var data;
+		  var sample_rate = $scope.samplerate;
+		  var language = $scope.language;
+		  var key = $scope._google_api_key;
+		  var alternatives = $scope._asr_alternatives;
+
+		  
+		  // use FileReader to convert Blob to base64 encoded data-URL
+		  var reader = new window.FileReader();
+		  reader.readAsDataURL(blob); 
+		  reader.onloadend = function() {
+			//only use base64-encoded data, i.e. remove meta-data from beginning:
+			var audioData = reader.result.replace(/^data:audio\/flac;base64,/,'');
+		    data = {
+		        config: {
+		        encoding: "FLAC",
+		        sampleRateHertz: sample_rate,
+		        languageCode: language,
+		        maxAlternatives: alternatives 
+		      },
+		      audio: {
+		        content: audioData
+		      }
+		    };
+		    
+		    var oAjaxReq = new XMLHttpRequest();
+		  
+		    oAjaxReq.onload = ajaxSuccess;
+		    
+		    //NOTE: instead of API, it is recommended to use service API authentification, 
+		    //      then create an access_token (on your server, retrieve it with the client)
+		    //      and set it in the header as
+		    //          Authorization: Bearer <access_token>
+		    //      (see example code below)
+		    
+		    if(!$scope.auth){
+		    	$scope.auth = 'apiKey';
+		    } else if($scope.auth !== 'serviceKey'){
+		    	console.error('unknown authentification method: ', $scope.auth);
+		    }
+		    
+		    var params = $scope.auth === 'apiKey'?  '?key='+key : '';
+		    oAjaxReq.open("post", " https://speech.googleapis.com/v1/speech:recognize"+params, true);
+		    
+		    if($scope.auth === 'serviceKey'){
+			    oAjaxReq.setRequestHeader("Authorization", "Bearer "+key);
+			    oAjaxReq.withCredentials = true;
+		    }
+		    
+		    
+		    oAjaxReq.setRequestHeader("Content-Type", "application/json");
+		    oAjaxReq.send(JSON.stringify(data));
+		  };
+
+		  $scope.$apply(function() {
+		    $scope.asr_result.text = "Waiting for Recognition Result...";
+		  });
+
+		};
 
 }]);
 

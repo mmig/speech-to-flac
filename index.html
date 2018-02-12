@@ -51,7 +51,14 @@
 							<span ng-show="!isNotASRCapable">Send Audio to Speech Recognition (instead of File)</span>
 							<div ng-show="isNotASRCapable" class="inline">
 								<s>Send Audio to Speech Recognition (instead of File)</s><br>
-								<div class="alert alert-warning alert-dismissible">Disabled: Need API key for accessing Google Speech API (see comment in app.js)</div>
+								<div class="alert alert-warning alert-dismissible">
+									Disabled: Need API key for accessing Google Cloud Speech API (see comment in app.js)
+									<br/>
+									<em>For testing, you can set an API key as query param:</em>
+									<code>...index.html?key&lt;your API key&gt;</code>
+									<br>
+									WARNING you should take care to keep your API key secret!!!
+								</div>
 							</div>
 						<br/>
 					</div>
@@ -59,6 +66,9 @@
 
 			</div>
 			<div class="row" >
+				<div class="offset3 span6">
+					<label ng-show="!wav_format && result_mode == 'asr'">Recognition Language: <select ng-model="language" ng-options="l for l in languages"></select></label>
+				</div>
 				<div class="text-center offset3 span6 form-group"  ng-show="!wav_format && result_mode == 'asr'">
 				
 					<h4>Recognition Result Data:</h4>

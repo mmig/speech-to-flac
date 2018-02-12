@@ -27,6 +27,16 @@ Try out at the [demo page][4].
 Setup:
  * your device needs a microphone
  * accept, when asked to allow your browser access to the microphone
+ 
+Setup Speech Recognition _([Google Cloud Speech service][5])_:
+ * you can set the app key / service key via search params in the URL:
+   * key: `key=<your key>`
+   * use [app key][6]: `auth=appKey`
+   * use [service key][7]: `auth=serviceKey`
+     * see also the node utility script `[create_access_token.js](create_access_token.js)`
+ * pre-selected recognition language: `language=de-DE`
+ * example (append to URL): `?auth=serviceKey&key=xxxxxxxxxxxxxxxxxxxxxxxx&language=en-GB`
+ * NOTE: use these methods for setting the auth/keys only for testing in secure environments & take care to __keep your keys secret__!!!
 
 Usage:
  * select `FLAC-file` for encoding the audio in FLAC format (or `WAV` for uncompressed audio)
@@ -42,3 +52,7 @@ If you access the demo page via `https`, most browser will make the permission f
 [2]: https://github.com/mmig/speech-to-file
 [3]: https://github.com/akrennmair/speech-to-server
 [4]: https://mmig.github.io/speech-to-flac/
+[5]: https://cloud.google.com/speech/
+[6]: https://cloud.google.com/docs/authentication/#api_keys
+[7]: https://cloud.google.com/docs/authentication/#service_accounts
+
