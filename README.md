@@ -29,13 +29,14 @@ Setup:
  * accept, when asked to allow your browser access to the microphone
  
 Setup Speech Recognition _([Google Cloud Speech service][5])_:
- * you can set the app key / service key via search params in the URL:
+ * you can set the API key / service key via search params in the URL:
    * key: `key=<your key>`
-   * use [app key][6]: `auth=appKey`
+   * use [app key][6]: `auth=apiKey`
    * use [service key][7]: `auth=serviceKey`
-     * see also the node utility script `[create_access_token.js](create_access_token.js)`
+     * see also the node utility script [`create_access_token.js`][8]
+     * NOTE currently, the _serviceKey_ option does work in normal browser environments due to CORS/authentification limitations
  * pre-selected recognition language: `language=de-DE`
- * example (append to URL): `?auth=serviceKey&key=xxxxxxxxxxxxxxxxxxxxxxxx&language=en-GB`
+ * example (append to URL): `?key=xxxxxxxxxxxxxxxxxxxxxxxx&language=en-GB`
  * NOTE: use these methods for setting the auth/keys only for testing in secure environments & take care to __keep your keys secret__!!!
 
 Usage:
@@ -55,4 +56,4 @@ If you access the demo page via `https`, most browser will make the permission f
 [5]: https://cloud.google.com/speech/
 [6]: https://cloud.google.com/docs/authentication/#api_keys
 [7]: https://cloud.google.com/docs/authentication/#service_accounts
-
+[8]: ./create_access_token.js

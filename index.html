@@ -55,7 +55,7 @@
 									Disabled: Need API key for accessing Google Cloud Speech API (see comment in app.js)
 									<br/>
 									<em>For testing, you can set an API key as query param:</em>
-									<code>...index.html?key&lt;your API key&gt;</code>
+									<code>https://...?key=&lt;your API key&gt;</code>
 									<br>
 									WARNING you should take care to keep your API key secret!!!
 								</div>
@@ -85,7 +85,7 @@ The input sample rate in Chrome is - as of now - 44100 Hz. If you change that, t
 <p>
 Important:<br>
 <br>
-If running the HTML page directly form the file system, then Chrome needs to be started with flag
+If running the HTML page directly from the file system, then Chrome needs to be started with flag
 <code>--allow-file-access-from-files</code>.
 Otherwise the web worker cannot be loaded.<br>
 If you want to use the Google Speech Recognition web service, you may need to start Chrome with the flag
