@@ -31,13 +31,17 @@ Setup:
 Setup Speech Recognition _([Google Cloud Speech service][5])_:
  * you can set the API key / service key via search params in the URL:
    * key: `key=<your key>`
-   * use [app key][6]: `auth=apiKey`
+   * use [API key][6]: `auth=apiKey`
    * use [service key][7]: `auth=serviceKey`
      * see also the node utility script [`create_access_token.js`][8]
      * NOTE currently, the _serviceKey_ option does work in normal browser environments due to CORS/authentification limitations
  * pre-selected recognition language: `language=de-DE`
- * example (append to URL): `?key=xxxxxxxxxxxxxxxxxxxxxxxx&language=en-GB`
- * NOTE: use these methods for setting the auth/keys only for testing in secure environments & take care to __keep your keys secret__!!!
+ * examples (append to URL):
+   * (API key, _only use in secure env._) `?language=en-GB&key=<your API key>`
+   * (service key) `?language=en-GB&auth=serviceKey&key=<access token generated with the service key>`
+ * NOTE: use the `apiKey` method for setting the auth/keys __only for testing__ in secure environments & take care to __keep your keys secret__!!!  
+         Instead you should set up a service that allows logged in users to retrieve an _access token_, generated with your service key on your secured server  
+         (see the examle script [`create_access_token.js`][8] for an example to generate the _access token_ on your server using _Node.js_)
 
 Usage:
  * select `FLAC-file` for encoding the audio in FLAC format (or `WAV` for uncompressed audio)
@@ -46,7 +50,7 @@ Usage:
  * note: recording & encoding to FLAC is done all on the client-side (i.e. within your browser); no data is sent to a server. 
 
 **NOTE:**
-If you access the demo page via `https`, most browser will make the permission for accessing your microphone from this page will be persistent; if accessed via `http` the permission only lasts until you leave the page.
+If you access the demo page via `https`, most browsers will make the permission for accessing your microphone from this page persistent; if accessed via `http` the permission only lasts until you leave the page (or may even deny access to the microphone altogether).
 
 
 [1]: https://github.com/mmig/libflac.js

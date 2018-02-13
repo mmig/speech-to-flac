@@ -273,8 +273,12 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		    
 		    //NOTE: instead of API, it is recommended to use service API authentification, 
 		    //      then create an access_token (on your server, retrieve it with the client)
-		    //      and set it in the header as
+		    //		and set the token as access_token param
+		    //			?access_token=<access_token>
+		    //
+		    //      or set it in the header as
 		    //          Authorization: Bearer <access_token>
+		    //
 		    //      (see example code below)
 		    
 		    if(!$scope.auth){
@@ -283,13 +287,13 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		    	console.error('unknown authentification method: ', $scope.auth);
 		    }
 		    
-		    var params = $scope.auth === 'apiKey'?  '?key='+key : '';
+		    var params = $scope.auth === 'apiKey'?  '?key='+key : ($scope.auth === 'serviceKey'? '?access_token='+key : '');
 		    oAjaxReq.open("post", "https://speech.googleapis.com/v1/speech:recognize"+params, true);
 		    
-		    if($scope.auth === 'serviceKey'){
-			    oAjaxReq.setRequestHeader("Authorization", "Bearer "+key);
-			    oAjaxReq.withCredentials = true;
-		    }
+//		    if($scope.auth === 'serviceKey'){
+//			    oAjaxReq.setRequestHeader("Authorization", "Bearer "+key);
+//			    oAjaxReq.withCredentials = true;
+//		    }
 		    
 		    
 		    oAjaxReq.setRequestHeader("Content-Type", "application/json");
