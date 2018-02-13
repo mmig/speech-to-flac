@@ -4,10 +4,16 @@
 //
 // npm install googleapis
 //
+// * set the path to your API secret (see comments below)
+// * run script, and use generated access token from console output
+//
+// node create_access_token.js
 //
 // * additional information:
 //   * [Service accounts] https://cloud.google.com/docs/authentication/
 //   * https://github.com/google/google-api-nodejs-client#using-jwt-service-tokens
+
+
 var google = require('googleapis');
 
 var key = require('/path/to/key.json');//set path to JSON file with your API secret (see Google docs about authentification)
