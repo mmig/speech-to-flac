@@ -282,18 +282,19 @@ recorderApp.controller('RecorderController', [ '$scope' , function($scope) {
 		    //      (see example code below)
 		    
 		    if(!$scope.auth){
-		    	$scope.auth = 'apiKey';
-		    } else if($scope.auth !== 'serviceKey'){
+		    	$scope.auth = 'serviceKey';
+		    } else if($scope.auth !== 'apiKey'){
 		    	console.error('unknown authentification method: ', $scope.auth);
 		    }
 		    
 		    var params = $scope.auth === 'apiKey'?  '?key='+key : ($scope.auth === 'serviceKey'? '?access_token='+key : '');
-		    oAjaxReq.open("post", "https://speech.googleapis.com/v1/speech:recognize"+params, true);
-		    
+		    //DISABLED: currently Google Cloud Speech does not support authorization (headers) in combination with CORS
 //		    if($scope.auth === 'serviceKey'){
 //			    oAjaxReq.setRequestHeader("Authorization", "Bearer "+key);
 //			    oAjaxReq.withCredentials = true;
 //		    }
+		    oAjaxReq.open("post", "https://speech.googleapis.com/v1/speech:recognize"+params, true);
+		    
 		    
 		    
 		    oAjaxReq.setRequestHeader("Content-Type", "application/json");
