@@ -7,7 +7,7 @@
 		<link href="https://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
 		<script src="app.js"></script>
-		<style type="text/css"> .red-btn { color: #D00000; } .green-btn { color: #00D000; } .blue-btn { color: #0000D0; } .inline { display: inline; } </style>
+		<style type="text/css"> .red-btn { color: #D00000; } .green-btn { color: #00D000; } .blue-btn { color: #0000D0; } .inline { display: inline; } .code-em{ font-family: monospace; } </style>
 	</head>
 	<body ng-controller="RecorderController">
 		<div class="container well">
@@ -16,7 +16,7 @@
 				<div class="offset3 span3 text-left">
 					<label>Compression: <select ng-model="compression" ng-options="b for b in compressions" ng-disabled="wav_format"></select></label>
 				</div>
-				<div class=" span3 text-left">
+				<div class="span3 text-left">
 					<label>Auto Select Input Sample Rate: <input type="checkbox" ng-model="autoSelectSamplerate" ng-click="setResultMode(isASREnabled);" /></label>
 				</div>
 				<div class="span3 text-left">
@@ -52,12 +52,20 @@
 							<div ng-show="isNotASRCapable" class="inline">
 								<s>Send Audio to Speech Recognition (instead of File)</s><br>
 								<div class="alert alert-warning alert-dismissible">
-									Disabled: Need API key for accessing Google Cloud Speech API (see comment in app.js)
+									Disabled: Need authorization for accessing Google Cloud Speech API (see comment in app.js)
 									<br/>
-									<em>For testing, you can set an API key as query param:</em>
-									<code>https://...?key=&lt;your API key&gt;</code>
+									<em>
+										For testing, you can generate an <span class="code-em">access token</span> using your 
+										<span class="code-em">service key</span> and set it as query param:
+										(e.g. see the example Node.js script <span class="code-em">create_access_token.js</span>)
+									</em>
+									<code>https://...?key=&lt;the generated access token&gt;</code>
+									<br/>
+									<em>Alternatively, you can set an <span class="code-em">API key</span> as query param:</em>
+									<code>https://...?auth=apiKey&key=&lt;your API key&gt;</code>
 									<br>
-									WARNING you should take care to keep your API key secret!!!
+									<strong>WARNING</strong> you should take care to keep your <span class="code-em">API key</span> secret!!!
+									
 								</div>
 							</div>
 						<br/>

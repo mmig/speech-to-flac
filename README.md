@@ -32,13 +32,13 @@ Setup Speech Recognition _([Google Cloud Speech service][5])_:
  * you can set the API key / service key via search params in the URL:
    * key: `key=<your key>`
    * use [API key][6]: `auth=apiKey`
-   * use [service key][7]: `auth=serviceKey`
+   * use [service key][7]: `auth=serviceKey` _(default method)_
      * see also the node utility script [`create_access_token.js`][8]
      * NOTE currently, the _serviceKey_ option does work in normal browser environments due to CORS/authentification limitations
  * pre-selected recognition language: `language=de-DE`
  * examples (append to URL):
-   * (API key, _only use in secure env._) `?language=en-GB&key=<your API key>`
-   * (service key) `?language=en-GB&auth=serviceKey&key=<access token generated with the service key>`
+   * (_access token_ from service key) `?language=en-GB&key=<access token generated with a service key>`
+   * (API key, _only use in secure env._) `?language=en-GB&auth=apiKey&key=<your API key>`
  * NOTE: use the `apiKey` method for setting the auth/keys __only for testing__ in secure environments & take care to __keep your keys secret__!!!  
          Instead you should set up a service that allows logged in users to retrieve an _access token_, generated with your service key on your secured server  
          (see the examle script [`create_access_token.js`][8] for an example to generate the _access token_ on your server using _Node.js_)
